@@ -41,29 +41,26 @@ window.addEventListener('DOMContentLoaded', () => {
     const deadline = '2023-05-01';
 
     function getTimeRemaining(endtime) {
-        const t = Date.parse(endtime) - Date.parse(new Date()),
-              days = Math.floor(t / (1000 * 60 * 60 * 24)),
-              hours = Math.floor((t / (1000 * 60 * 60) % 24)),
-              minutes = Math.floor((t / 1000 / 60) % 60),
-              seconds = Math.floor((t / 1000) % 60);
+        const total = Date.parse(endtime) - Date.parse(new Date()),
+              days = Math.floor(total / (1000 * 60 * 60 * 24));
 
-        updateClock();
+        const [hours, minutes, seconds] = new Date(total).toLocaleString('ru-RU', { timeStyle: 'medium' }).split(':');
 
-        return {
-            'total': t,
-            'days': days,
-            'hours': hours,
-            'minutes': minutes,
-            'seconds': seconds
-        };
-    }
+        // function updateClock() {
+        //     const t = getTimeRemaining(endtime);
 
-    function getZero(num) {
-        if (num >= 0 && num < 10) {
-            return `0${num}`;
-        } else {
-            return num;
-        }
+        //     days.innerHTML = getZero(t.days);
+        //     hours.innerHTML = getZero(t.hours);
+        //     minutes.innerHTML = getZero(t.minutes);
+        //     seconds.innerHTML = getZero(t.seconds);
+
+        //     if (t.total <= 0) {
+        //         clearInterval(timeInterval);
+        //     }
+        // }
+        // updateClock();
+
+        return { total, days, hours, minutes, seconds };
     }
 
     function setClock(selector, endtime) {
@@ -77,15 +74,16 @@ window.addEventListener('DOMContentLoaded', () => {
         function updateClock() {
             const t = getTimeRemaining(endtime);
 
-            days.innerHTML = getZero(t.days);
-            hours.innerHTML = getZero(t.hours);
-            minutes.innerHTML = getZero(t.minutes);
-            seconds.innerHTML = getZero(t.seconds);
+            days.innerHTML = t.days;
+            hours.innerHTML = t.hours;
+            minutes.innerHTML = t.minutes;
+            seconds.innerHTML = t.seconds;
 
             if (t.total <= 0) {
                 clearInterval(timeInterval);
             }
         }
+        updateClock();
     }
 
     setClock('.timer', deadline);
@@ -188,16 +186,9 @@ window.addEventListener('DOMContentLoaded', () => {
         return await res.json();
     };
 
-    // getResource('http://localhost:3000/menu')
-    //     .then(data => {
-    //         data.forEach(({img, altimg, title, descr, price}) => {
-    //             new menuCards(img, altimg, title, descr, price, '.menu .container').render();
-    //         });
-    //     });
-
-    axios.get('http://localhost:3000/menu')
+    axios.get('/db.json')
         .then(data => {
-            data.data.forEach(({img, altimg, title, descr, price}) => {
+            data.data.menu.forEach(({img, altimg, title, descr, price}) => {
                 new menuCards(img, altimg, title, descr, price, '.menu .container').render();
             });
         });
@@ -282,8 +273,4 @@ window.addEventListener('DOMContentLoaded', () => {
             closeModal();
         }, 4000);
     }
-
-    fetch('http://localhost:3000/menu')
-        .then(data => data.json())
-        .then(res => console.log(res));
 });
